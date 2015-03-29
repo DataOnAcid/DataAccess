@@ -1,8 +1,8 @@
 
-"""Write a file containing data file urls from zenodo for a given DOI
-example DOI is "10.5281/zenodo.16407"
+"""Write a file containing data file urls from zenodo for a given DOI and
+zenodo access token. example DOI is "10.5281/zenodo.16407"
 
-usage: python get_zenodo_url.py DOI output_filename
+usage: python get_zenodo_url.py DOI token output_filename
 
 """
 
@@ -10,11 +10,11 @@ import sys
 import requests
 
 
-def get_dep_id(doi):
+def get_dep_id(doi, token):
 
     """get the deposition id for the DOI"""
 
-    response = requests.get(ZENODO_URL_BASE + "?access_token=" + ACCESS_TOKEN)
+    response = requests.get(ZENODO_URL_BASE + "?access_token=" + token)
 
     json_data = response.json()
 
@@ -27,18 +27,15 @@ def get_dep_id(doi):
 ZENODO_URL_BASE="https://zenodo.org/api/deposit/depositions/"
 
 
-#Zenodo Access token - use Phil's for demo
-#TODO: take as argument when available from web app user config
-ACCESS_TOKEN="koumNv9K77DM2mehN1pEzOpuzjV89OhpHhSldUWx877Y6R5LniXMTA8iU1hD"
-
 #DOI & output file from command line args
 #TODO error handling!
 doi = sys.argv[1]
-output_filename = sys.argv[2]
+token = sys.argv[2]
+output_filename = sys.argv[3]
 
 #Get data file meta data from Zenodo
-dep_id = get_dep_id(doi)
-url = ZENODO_URL_BASE + str(dep_id) + "?access_token=" + ACCESS_TOKEN
+dep_id = get_dep_id(doi, token)
+url = ZENODO_URL_BASE + str(dep_id) + "?access_token=" + token
 deposition_json = requests.get(url).json()
 
 #Write data file names and Zenodo urls to output file
