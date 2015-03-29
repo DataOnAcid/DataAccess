@@ -2,7 +2,7 @@
 """Write a file containing data file urls from zenodo for a given DOI and
 zenodo access token. example DOI is "10.5281/zenodo.16407"
 
-usage: python get_zenodo_url.py DOI token output_filename
+usage: python get_zenodo_url.py DOI token [output_filename]
 
 """
 
@@ -32,7 +32,9 @@ ZENODO_URL_BASE="https://zenodo.org/api/deposit/depositions/"
 #TODO error handling!
 doi = sys.argv[1]
 token = sys.argv[2]
-output_filename = sys.argv[3]
+output_filename = None
+if len(sys.argv) > 3:
+    output_filename = sys.argv[3]
 
 #Get data file meta data from Zenodo
 dep_id = get_dep_id(doi, token)
@@ -45,6 +47,9 @@ for dep_file in deposition_json["files"]:
     file_json = requests.get(url).json()
     dep_file["url"] = "https://zenodo.org/record/" + str(dep_id) + "/files/" + str(file_json["filename"])
 
-#Write data file names and Zenodo urls to output file
-with open(output_filename, 'w') as f:
-    f.write(json.dumps(deposition_json, indent = 2))
+#Write data to output file or stdout
+if output_filename == None:
+    print json.dumps(deposition_json, indent = 2)
+else:
+    with open(output_filename, 'w') as f:
+        f.write(json.dumps(deposition_json, indent = 2))
