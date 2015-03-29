@@ -7,6 +7,7 @@ usage: python get_zenodo_url.py DOI token output_filename
 """
 
 import sys
+import json
 import requests
 
 
@@ -38,13 +39,12 @@ dep_id = get_dep_id(doi, token)
 url = ZENODO_URL_BASE + str(dep_id) + "?access_token=" + token
 deposition_json = requests.get(url).json()
 
+for dep_file in deposition_json["files"]:
+    file_id = dep_file["id"]
+    url = ZENODO_URL_BASE + str(dep_id) + "/files/" + str(file_id) + "?access_token=" + token
+    file_json = requests.get(url).json()
+    dep_file["url"] = "https://zenodo.org/record/" + str(dep_id) + "/files/" + str(file_json["filename"])
+
 #Write data file names and Zenodo urls to output file
 with open(output_filename, 'w') as f:
-
-    for dep_file in deposition_json["files"]:
-        file_id = dep_file["id"]
-        url = ZENODO_URL_BASE + str(dep_id) + "/files/" + str(file_id) + "?access_token=" + ACCESS_TOKEN
-        file_json = requests.get(url).json()
-        file_url = "https://zenodo.org/record/" + str(dep_id) + "/files/" + str(file_json["filename"])
-
-        f.write(file_json["filename"] + "	" + file_url + "\n")
+    f.write(json.dumps(deposition_json, indent = 2))
